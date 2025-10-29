@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Email - Camera Calibration App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="mb-3" style="font-size: 4rem; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <h3 class="card-title fw-bold" style="background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Verify Your Email</h3>
+                    <p class="text-muted fs-6">Enter the 4-digit code sent to <strong>{{ email }}</strong></p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="verification_code" class="form-label">Verification Code</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            <input type="text" class="form-control text-center" id="verification_code" 
+                                   name="verification_code" maxlength="4" pattern="[0-9]{4}" 
+                                   placeholder="1234" required style="font-size: 24px; letter-spacing: 5px;">
+                        </div>
+                        <div class="form-text">Enter the 4-digit code from your email</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   minlength="6" required>
+                        </div>
+                        <div class="form-text">Create your account password</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="fas fa-check"></i> Verify & Create Account
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p class="mb-2">
+                        <small class="text-muted">Didn't receive the code?</small>
+                    </p>
+                    <a href="{{ url_for('signup') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Sign Up
+                    </a>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="text-muted mb-2">
+                        <i class="fas fa-info-circle"></i> Instructions:
+                    </h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Check your email inbox (and spam folder)</li>
+                        <li>Enter the 4-digit code exactly as shown</li>
+                        <li>Code expires in 10 minutes</li>
+                        <li>Create a secure password for your account</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.getElementById('verification_code');
+    
+    // Auto-format verification code input
+    codeInput.addEventListener('input', function(e) {
+        // Remove non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+        
+        // Limit to 4 digits
+        if (this.value.length > 4) {
+            this.value = this.value.slice(0, 4);
+        }
+    });
+    
+    // Auto-focus on page load
+    codeInput.focus();
+    
+    // Auto-submit when 4 digits are entered
+    codeInput.addEventListener('input', function(e) {
+        if (this.value.length === 4) {
+            // Optional: auto-submit after a short delay
+            // setTimeout(() => {
+            //     document.querySelector('form').submit();
+            // }, 500);
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Camera Calibration App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="mb-3 float-animation" style="font-size: 5rem;">
+                        <i class="fas fa-user-plus gradient-text"></i>
+                    </div>
+                    <h3 class="card-title fw-bold gradient-text" style="font-size: 2rem;">Create Account</h3>
+                    <p class="text-muted fs-5">✨ Only @tatweermea.com emails allowed</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="user@tatweermea.com" required>
+                        </div>
+                        <div class="form-text">Only @tatweermea.com domain emails are accepted</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   minlength="6" required>
+                        </div>
+                        <div class="form-text">Minimum 6 characters</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="confirm_password" 
+                                   name="confirm_password" minlength="6" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p class="mb-0">Already have an account? 
+                        <a href="{{ url_for('login') }}" class="text-decoration-none">Sign in here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

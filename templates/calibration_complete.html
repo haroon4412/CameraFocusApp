@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Calibration Complete - Camera Calibration App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="mb-3" style="font-size: 4rem;">
+                        <i class="fas fa-check-circle" style="color: #56ab2f;"></i>
+                    </div>
+                    <h3 class="card-title fw-bold" style="background: linear-gradient(45deg, #56ab2f, #a8e063); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Calibration Complete</h3>
+                    <p class="text-muted fs-6">Please provide the following information to complete the calibration session</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="camera_id" class="form-label">
+                            <i class="fas fa-car me-2" style="color: #667eea;"></i> Vehicle ID
+                        </label>
+                        <input type="text" class="form-control" id="camera_id" name="camera_id" 
+                               placeholder="Enter vehicle identifier" required>
+                        <div class="form-text">Enter a unique identifier for this vehicle</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="lens_id" class="form-label">
+                            <i class="fas fa-eye me-2" style="color: #764ba2;"></i> Lens ID
+                        </label>
+                        <input type="text" class="form-control" id="lens_id" name="lens_id" 
+                               placeholder="Enter lens identifier" required>
+                        <div class="form-text">Enter a unique identifier for this lens</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="calibration_date" class="form-label">
+                            <i class="fas fa-calendar-alt me-2" style="color: #56ab2f;"></i> Calibration Date
+                        </label>
+                        <input type="date" class="form-control" id="calibration_date" name="calibration_date" 
+                               required>
+                        <div class="form-text">Date when the calibration was performed</div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save Calibration Data
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('calibration_date');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = today;
+    }
+});
+</script>
+{% endblock %}

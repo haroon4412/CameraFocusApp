@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Camera Calibration App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="mb-3 float-animation" style="font-size: 5rem;">
+                        <i class="fas fa-tachometer-alt gradient-text"></i>
+                    </div>
+                    <h2 class="card-title fw-bold gradient-text" style="font-size: 2.5rem;">Calibration Dashboard</h2>
+                    <p class="text-muted fs-5">👋 Welcome back, <strong>{{ session.user_email }}</strong>!</p>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card border-0" style="background: rgba(102, 126, 234, 0.05); backdrop-filter: blur(10px);">
+                            <div class="card-body text-center p-5">
+                                <div class="mb-3" style="font-size: 4rem;">
+                                    <i class="fas fa-camera gradient-text"></i>
+                                </div>
+                                <h4 class="mb-3 fw-bold gradient-text">Camera Calibration</h4>
+                                <p class="text-muted mb-4 fs-5">
+                                    🎯 Click the button below to start the camera calibration process. 
+                                    This will run the Calib.py script and analyze camera focus.
+                                </p>
+                                
+                                <div id="calibration-status" class="mb-3">
+                                    <div id="status-ready" class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i> Ready to start calibration
+                                    </div>
+                                    <div id="status-running" class="alert alert-warning d-none">
+                                        <i class="fas fa-spinner fa-spin"></i> Calibration in progress...
+                                        <div class="mt-2">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                                     role="progressbar" style="width: 100%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="status-completed" class="alert alert-success d-none">
+                                        <i class="fas fa-check-circle"></i> Calibration completed successfully!
+                                    </div>
+                                    <div id="status-error" class="alert alert-danger d-none">
+                                        <i class="fas fa-exclamation-triangle"></i> <span id="error-message"></span>
+                                    </div>
+                                </div>
+
+                                <button id="start-calibration-btn" class="btn btn-primary btn-lg mb-3">
+                                    <i class="fas fa-play"></i> Start Calibration
+                                </button>
+
+                                <div id="calibration-complete-section" class="d-none">
+                                    <hr>
+                                    <p class="text-success mb-3">
+                                        <i class="fas fa-check"></i> Calibration completed! Please provide additional information.
+                                    </p>
+                                    <a href="{{ url_for('calibration_complete') }}" class="btn btn-success">
+                                        <i class="fas fa-arrow-right"></i> Continue to Data Entry
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calibration Sessions History -->
+{% if calibration_sessions %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0 fw-bold gradient-text" style="font-size: 1.5rem;">
+                        <i class="fas fa-history me-2"></i> Calibration History
+                    </h4>
+                    <div>
+                        <a href="{{ url_for('download_all_pdfs') }}" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-file-pdf me-2"></i> Download all PDF
+                        </a>
+                        <a href="{{ url_for('download_summary') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-file-excel me-2"></i> Download Summary
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Vehicle ID</th>
+                                <th>Lens ID</th>
+                                <th>Calibrated By</th>
+                                <th>Calibration Date</th>
+                                <th>Sharpness (10m/20m/40m)</th>
+                                <th>Status</th>
+                                <th>Tested on Field</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in calibration_sessions %}
+                            <tr>
+                                <td>
+                                    <i class="fas fa-car text-primary"></i>
+                                    {{ session.camera_id or 'N/A' }}
+                                </td>
+                                <td>
+                                    <i class="fas fa-eye text-secondary"></i>
+                                    {{ session.lens_id or 'N/A' }}
+                                </td>
+                                <td>
+                                    <i class="fas fa-user text-warning"></i>
+                                    {{ session.user.email if session.user else 'Unknown User' }}
+                                </td>
+                                <td>
+                                    <i class="fas fa-calendar text-info"></i>
+                                    {{ session.calibration_date.strftime('%Y-%m-%d') if session.calibration_date else 'N/A' }}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {% if session.sharpness_10m or session.sharpness_20m or session.sharpness_40m %}
+                                            {{ "%.1f"|format(session.sharpness_10m) if session.sharpness_10m else 'N/A' }} / 
+                                            {{ "%.1f"|format(session.sharpness_20m) if session.sharpness_20m else 'N/A' }} / 
+                                            {{ "%.1f"|format(session.sharpness_40m) if session.sharpness_40m else 'N/A' }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if session.status == 'completed' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> Completed
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock"></i> {{ session.status.title() }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if session.status == 'completed' %}
+                                        <div class="form-check">
+                                            <input class="form-check-input field-test-checkbox" 
+                                                   type="checkbox" 
+                                                   id="field_test_{{ session.id }}"
+                                                   {% if session.tested_on_field %}checked{% endif %}
+                                                   data-session-id="{{ session.id }}">
+                                            <label class="form-check-label" for="field_test_{{ session.id }}">
+                                                <i class="fas fa-map-marker-alt text-success"></i>
+                                            </label>
+                                        </div>
+                                        {% if session.tested_on_field %}
+                                            <div class="small text-muted mt-1">
+                                                <i class="fas fa-user"></i> {{ session.tested_by }}
+                                                <br><i class="fas fa-clock"></i> {{ session.tested_at.strftime('%Y-%m-%d %H:%M') if session.tested_at }}
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ session.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if session.status == 'completed' and session.pdf_filename %}
+                                        <a href="{{ url_for('download_pdf', session_id=session.id) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Download PDF Report">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">No PDF available</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startBtn = document.getElementById('start-calibration-btn');
+    const statusReady = document.getElementById('status-ready');
+    const statusRunning = document.getElementById('status-running');
+    const statusCompleted = document.getElementById('status-completed');
+    const statusError = document.getElementById('status-error');
+    const completeSection = document.getElementById('calibration-complete-section');
+    const errorMessage = document.getElementById('error-message');
+
+    function hideAllStatus() {
+        statusReady.classList.add('d-none');
+        statusRunning.classList.add('d-none');
+        statusCompleted.classList.add('d-none');
+        statusError.classList.add('d-none');
+    }
+
+    function checkCalibrationStatus() {
+        fetch('/calibration_status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.running) {
+                    hideAllStatus();
+                    statusRunning.classList.remove('d-none');
+                    startBtn.disabled = true;
+                    startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+                } else if (data.completed) {
+                    hideAllStatus();
+                    statusCompleted.classList.remove('d-none');
+                    completeSection.classList.remove('d-none');
+                    startBtn.disabled = true;
+                    startBtn.innerHTML = '<i class="fas fa-check"></i> Completed';
+                } else if (data.error) {
+                    hideAllStatus();
+                    statusError.classList.remove('d-none');
+                    errorMessage.textContent = data.error;
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="fas fa-play"></i> Start Calibration';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking status:', error);
+            });
+    }
+
+    startBtn.addEventListener('click', function() {
+        fetch('/start_calibration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                hideAllStatus();
+                statusRunning.classList.remove('d-none');
+                startBtn.disabled = true;
+                startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+                
+                // Check status every 2 seconds
+                const statusInterval = setInterval(() => {
+                    checkCalibrationStatus();
+                    if (!document.getElementById('status-running').classList.contains('d-none')) {
+                        // Still running, continue checking
+                    } else {
+                        clearInterval(statusInterval);
+                    }
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error starting calibration');
+        });
+    });
+
+    // Check initial status
+    checkCalibrationStatus();
+
+    // Handle field test checkbox clicks
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('field-test-checkbox')) {
+            const sessionId = e.target.getAttribute('data-session-id');
+            const isChecked = e.target.checked;
+            
+            // Disable checkbox while processing
+            e.target.disabled = true;
+            
+            fetch(`/toggle_field_test/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to show updated information
+                    window.location.reload();
+                } else {
+                    alert('Error updating field test status: ' + (data.error || 'Unknown error'));
+                    // Revert checkbox state
+                    e.target.checked = !isChecked;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating field test status');
+                // Revert checkbox state
+                e.target.checked = !isChecked;
+            })
+            .finally(() => {
+                // Re-enable checkbox
+                e.target.disabled = false;
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

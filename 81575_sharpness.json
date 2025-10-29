@@ -1,0 +1,11 @@
+{
+  "lens_mm": 50,
+  "sharpness_10m": null,
+  "sharpness_20m": 86.89434416785492,
+  "sharpness_40m": 188.65609037818035,
+  "rois_detected": [
+    40,
+    20
+  ],
+  "timestamp": null
+}
